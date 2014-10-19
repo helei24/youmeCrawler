@@ -14,7 +14,8 @@ class YoumecrawlerItem(scrapy.Item):
     pass
 class TianyaItem(Item):  
     title = Field()  
-    content = Field()  
+    content= Field()
+    content_url = Field()  
     author = Field()
     hits = Field()
     replies = Field()
