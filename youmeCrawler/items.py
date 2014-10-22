@@ -12,15 +12,25 @@ class YoumecrawlerItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
-class TianyaItem(Item): 
-    title = Field()  
-    content_url = Field()
+
+class PostItem(Item): 
+
+    post_id = Field()
+    title = Field()
+    post_url = Field()
     content = Field()
     author_id = Field()
-    coment = Field()
-    coment_user_id = Field()
-
     author = Field()
     hits = Field()
     replies = Field()
+    is_post = Field()
+    time = Field()
+
+class CommentItem(Item):
+    
+    post_id = Field()
+    comment = Field()
+    comment_author_id = Field()
+    comment_author = Field()
+    is_post = Field()
     time = Field()
