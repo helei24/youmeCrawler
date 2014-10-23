@@ -24,7 +24,7 @@ class TianyaSpider(Spider):
         items = []
 
         author_id = item['author_id']
-        
+        item['time'] = sel.xpath('//div[@id="post_head"]/div[1]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]
         item['content'] = sel.xpath('//div[@class="atl-item"]/div[@class="atl-content"]/div[2]/div[@class="bbs-content clearfix"]/text()').extract()[0].strip()
 
         atl_items = sel.xpath('//div[@class="atl-item"]')
@@ -48,11 +48,11 @@ class TianyaSpider(Spider):
                     item_comment['comment_author'] = author
                     item_comment['time'] = time 
                     item_comment['is_post'] = False   
-
+                    items.append(item_comment)
 
         items.append(item)
         # print item['time']
-        # return items
+        return items
 
 
     def parse(self, response):  
