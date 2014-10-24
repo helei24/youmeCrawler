@@ -24,7 +24,7 @@ class TianyaSpider(Spider):
         items = []
 
         author_id = item['author_id']
-        item['time'] = sel.xpath('//div[@id="post_head"]/div[1]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]
+        item['atime'] = sel.xpath('//div[@id="post_head"]/div[1]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]
         item['content'] = sel.xpath('//div[@class="atl-item"]/div[@class="atl-content"]/div[2]/div[@class="bbs-content clearfix"]/text()').extract()[0].strip()
 
         atl_items = sel.xpath('//div[@class="atl-item"]')
@@ -37,7 +37,7 @@ class TianyaSpider(Spider):
                 content_or_comment = content_or_comment[0].strip()
                 author = atl_item.xpath('div[@class="atl-head"]/div[@class="atl-info"]/span[1]/a/text()').extract()[0].strip()
                 author_tmp_id = atl_item.xpath('div[@class="atl-head"]/div[@class="atl-info"]/span[1]/a/@href').extract()[0].strip().split('/')[3]
-                time = atl_item.xpath('div[@class="atl-head"]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]                                  #时间：2014-10-18 16:02:05    
+                atime = atl_item.xpath('div[@class="atl-head"]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]                                  #时间：2014-10-18 16:02:05    
             
                 if author_tmp_id == author_id:
                     item['content'] += content_or_comment
@@ -46,7 +46,7 @@ class TianyaSpider(Spider):
                     item_comment['post_id'] = item['post_id']
                     item_comment['comment_author_id'] = author_tmp_id
                     item_comment['comment_author'] = author
-                    item_comment['time'] = time 
+                    item_comment['atime'] = atime 
                     item_comment['is_post'] = False   
                     items.append(item_comment)
 
@@ -70,7 +70,7 @@ class TianyaSpider(Spider):
             item['replies'] = tr.xpath('td[4]/text()').extract()[0].strip()
             item['post_url'] = tr.xpath('td[1]/a/@href').extract()[0].strip()
             item['post_id'] = item['post_url'].split('-')[2]
-            item['time'] = tr.xpath('td[5]/@title').extract()[0].strip()
+            item['atime'] = tr.xpath('td[5]/@title').extract()[0].strip()
             item['is_post'] = True
 
             items.append(item)

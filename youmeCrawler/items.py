@@ -24,7 +24,7 @@ class PostItem(Item):
     hits = Field()
     replies = Field()
     is_post = Field()
-    time = Field()
+    atime = Field()
 
 class CommentItem(Item):
     
@@ -33,4 +33,4 @@ class CommentItem(Item):
     comment_author_id = Field()
     comment_author = Field()
     is_post = Field()
-    time = Field()
+    atime = Field()
