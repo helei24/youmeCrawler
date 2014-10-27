@@ -32,22 +32,21 @@ class YoumecrawlerPipeline(object):
 		if item['is_post']:
 			query = self.dbpool.runInteraction(self.insert_post, item)
 			query.addErrback(self.handle_error)
+			pass
 		else:
-			print ""
-			# query = self.dbpool.runInteraction(self.insert_comment, item)
-			# query.addErrback(self.handle_error)
-		# return item
+			query = self.dbpool.runInteraction(self.insert_comment, item)
+			query.addErrback(self.handle_error)
+			pass
 
 	def insert_post(self, tx, item):
 
 		atime = item['atime'].encode("utf-8")
-		# print type(time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(atime, "%Y-%m-%d %H:%M:%S")))
 		tx.execute('insert into post(post_id, title, author_id, author, content, hits, replies, post_url, atime)'\
-		'values (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (int(item['post_id']), item['title'], int(item['author_id']), item['author'].encode("utf-8"), item['content'].encode("utf-8"), int(item['hits']), int(item['replies']), item['post_url'], datetime.datetime.strptime(atime, "%Y-%m-%d %H:%M:%S")))
+		'values (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (int(item['post_id']), item['title'], int(item['author_id']), item['author'], item['content'], int(item['hits']), int(item['replies']), item['post_url'], datetime.datetime.strptime(atime, "%Y-%m-%d %H:%M:%S")))
 
 	def insert_comment(self, tx, item):
-		tx.execute('insert into comment(post_id, comment_author_id, comment_author, comment, atime) values (%s, %s, %s, %s, %s)',\
-		int(item['post_id']), (int(item['comment_author_id']), item['comment_author'].encode("utf-8"), item['comment'].encode("utf-8"), datetime.datetime.strptime(atime, "%Y-%m-%d %H:%M")))
+
+		tx.execute('insert into comment(post_id, comment_author_id, comment_author, comment, atime) values (%s, %s, %s, %s, %s)',(int(item['post_id']), int(item['comment_author_id']), item['comment_author'], item['comment'], datetime.datetime.strptime(item['atime'].encode("utf-8"), "%Y-%m-%d %H:%M:%S")))
 
 	def handle_error(self, e):
 		log.err(e)

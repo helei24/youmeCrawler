@@ -31,6 +31,7 @@ class TianyaSpider(Spider):
         for atl_item in atl_items:
             
             content_or_comment = atl_item.xpath('div[@class="atl-content"]/div[2]/div[@class="bbs-content"]/text()').extract()
+            # print type(item['title'].encode("utf-8"))
             if len(content_or_comment) == 0:
                 continue
             else:
@@ -41,6 +42,7 @@ class TianyaSpider(Spider):
             
                 if author_tmp_id == author_id:
                     item['content'] += content_or_comment
+                    items.append(item)
                 else:
                     item_comment['comment'] = content_or_comment   
                     item_comment['post_id'] = item['post_id']
@@ -50,7 +52,6 @@ class TianyaSpider(Spider):
                     item_comment['is_post'] = False   
                     items.append(item_comment)
 
-        items.append(item)
         # print item['time']
         return items
 
