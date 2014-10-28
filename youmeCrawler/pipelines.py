@@ -21,22 +21,30 @@ import os
 import errno
 import json
 import codecs
+import redis
 
 class YoumecrawlerPipeline(object):
+	
+	pool = redis.ConnectionPool(host='127.0.0.1', port=6379) 
 	
 	def __init__(self):
 		self.dbpool = adbapi.ConnectionPool('MySQLdb', db = 'youme', user = 'root', passwd = '', cursorclass = MySQLdb.cursors.DictCursor, charset = 'utf8', use_unicode = False)
 
 	def process_item(self, item, spider):
 
-		if item['is_post']:
-			query = self.dbpool.runInteraction(self.insert_post, item)
-			query.addErrback(self.handle_error)
-			pass
+		r = redis.Redis(connection_pool=self.pool)
+		if r.get(item['post_id']) is not None:
+			print "sfsfffffffffffff"
+			if item['is_post']:
+				query = self.dbpool.runInteraction(self.insert_post, item)
+				query.addErrback(self.handle_error)
+			else:
+				print item['comment_author']
+				query = self.dbpool.runInteraction(self.insert_comment, item)
+				query.addErrback(self.handle_error)
+				r.set(item['is_post'])
 		else:
-			query = self.dbpool.runInteraction(self.insert_comment, item)
-			query.addErrback(self.handle_error)
-			pass
+			pass	
 
 	def insert_post(self, tx, item):
 

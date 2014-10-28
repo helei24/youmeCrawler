@@ -42,7 +42,6 @@ class TianyaSpider(Spider):
             
                 if author_tmp_id == author_id:
                     item['content'] += content_or_comment
-                    items.append(item)
                 else:
                     item_comment['comment'] = content_or_comment   
                     item_comment['post_id'] = item['post_id']
@@ -51,6 +50,7 @@ class TianyaSpider(Spider):
                     item_comment['atime'] = atime 
                     item_comment['is_post'] = False   
                     items.append(item_comment)
+        items.append(item)
 
         # print item['time']
         return items
@@ -61,8 +61,8 @@ class TianyaSpider(Spider):
         sel = Selector(response)  
         table_trs = sel.xpath('//table/tbody[2]/tr')
         items = []
-        for tr in table_trs:  
-           
+        for tr in table_trs:
+            
             item = PostItem()
             item['title'] = tr.xpath('td[1]/a/text()').extract()[0].strip()
             item['author'] = tr.xpath('td[2]/a/text()').extract()[0].strip()
@@ -73,8 +73,8 @@ class TianyaSpider(Spider):
             item['post_id'] = item['post_url'].split('-')[2]
             item['atime'] = tr.xpath('td[5]/@title').extract()[0].strip()
             item['is_post'] = True
-
             items.append(item)
 
-            for item in items:
-                yield Request("http://bbs.tianya.cn%s" % item['post_url'], meta={'item':item}, callback=self.content_parse)
+        for item in items:
+            # print item['post_url']
+            yield Request("http://bbs.tianya.cn%s" % item['post_url'], meta={'item':item}, callback=self.content_parse)
