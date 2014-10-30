@@ -33,16 +33,15 @@ class YoumecrawlerPipeline(object):
 	def process_item(self, item, spider):
 
 		r = redis.Redis(connection_pool=self.pool)
-		if r.get(item['post_id']) is not None:
-			print "sfsfffffffffffff"
+
+		if r.get(item['post_id']) is None:
 			if item['is_post']:
 				query = self.dbpool.runInteraction(self.insert_post, item)
 				query.addErrback(self.handle_error)
+				r.set(item['post_id'], item['atime'])
 			else:
-				print item['comment_author']
 				query = self.dbpool.runInteraction(self.insert_comment, item)
 				query.addErrback(self.handle_error)
-				r.set(item['is_post'])
 		else:
 			pass	
 

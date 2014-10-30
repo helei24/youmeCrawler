@@ -20,11 +20,10 @@ class TianyaSpider(Spider):
         sel = Selector(response)
 
         item = response.meta['item']
-        item_comment = CommentItem()
         items = []
 
-        author_id = item['author_id']
-        item['atime'] = sel.xpath('//div[@id="post_head"]/div[1]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]
+        author_id = item['author_id']   #author id of of current post
+        item['atime'] = sel.xpath('//div[@id="post_head"]/div[1]/div[@class="atl-info"]/span[2]/text()').extract()[0].strip()[3:]          #get the publish time of each part(content or comment) 
         item['content'] = sel.xpath('//div[@class="atl-item"]/div[@class="atl-content"]/div[2]/div[@class="bbs-content clearfix"]/text()').extract()[0].strip()
 
         atl_items = sel.xpath('//div[@class="atl-item"]')
@@ -43,6 +42,7 @@ class TianyaSpider(Spider):
                 if author_tmp_id == author_id:
                     item['content'] += content_or_comment
                 else:
+                    item_comment = CommentItem()
                     item_comment['comment'] = content_or_comment   
                     item_comment['post_id'] = item['post_id']
                     item_comment['comment_author_id'] = author_tmp_id
