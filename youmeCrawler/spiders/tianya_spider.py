@@ -5,8 +5,19 @@ from scrapy.spider import Spider
 from scrapy.selector import Selector
 from youmeCrawler.items import PostItem, CommentItem
 from scrapy.http import Request
-class TianyaSpider(Spider):
+import logging  
+import logging.config 
 
+class TianyaSpider(Spider):
+    CONF_LOG = "logging.conf"
+    logging.config.fileConfig(CONF_LOG);    
+    
+    logger = logging.getLogger('youme');    # 获取名为xzs的logger    
+    logger.setLevel(logging.DEBUG)  
+    logger.debug("Hello boy, Debug");  
+    logger.info("Hello boy, Info");  
+
+####################################################################################################
     name = "tianya"  
     
     download_delay = 1
