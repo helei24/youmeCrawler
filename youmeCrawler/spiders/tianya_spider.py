@@ -5,18 +5,9 @@ from scrapy.spider import Spider
 from scrapy.selector import Selector
 from youmeCrawler.items import PostItem, CommentItem
 from scrapy.http import Request
-import logging  
-import logging.config 
+from youmeCrawler.youmeLogger import logger
 
 class TianyaSpider(Spider):
-    CONF_LOG = "logging.conf"
-    logging.config.fileConfig(CONF_LOG);    
-    
-    logger = logging.getLogger('youme');    # 获取名为xzs的logger    
-    logger.setLevel(logging.DEBUG)  
-    logger.debug("Hello boy, Debug");  
-    logger.info("Hello boy, Info");  
-
 ####################################################################################################
     name = "tianya"  
     
@@ -28,6 +19,9 @@ class TianyaSpider(Spider):
  
     def content_parse(self, response):
         
+        global logger
+
+        logger.debug('Begin to parse post content and its comment info.')
         sel = Selector(response)
 
         item = response.meta['item']
@@ -41,7 +35,6 @@ class TianyaSpider(Spider):
         for atl_item in atl_items:
             
             content_or_comment = atl_item.xpath('div[@class="atl-content"]/div[2]/div[@class="bbs-content"]/text()').extract()
-            # print type(item['title'].encode("utf-8"))
             if len(content_or_comment) == 0:
                 continue
             else:
@@ -59,8 +52,19 @@ class TianyaSpider(Spider):
                     item_comment['comment_author_id'] = author_tmp_id
                     item_comment['comment_author'] = author
                     item_comment['atime'] = atime 
-                    item_comment['is_post'] = False   
+                    item_comment['is_post'] = False  
+
+                    item_comment_str = 'post_id: ' + item_comment['post_id'] + '\tcomment: ' + item_comment['comment'] + '\tcomment_author_id: ' + item_comment['comment_author_id']\
+                    + '\tcomment_author: ' + item_comment['comment_author'] + '\tatime: ' + item_comment['atime'] + '\tis_post: ' + str(item_comment['is_post']) 
+
+                    logger.debug('Comment info: ' + item_comment_str)
                     items.append(item_comment)
+
+        item_str =  'post_id: ' + item['post_id'] + '\ttitle: ' + item['title'] + '\tpost_url: ' + item['post_url'] + '\tauthor_id: ' \
+            + item['author_id'] + '\tauthor: ' + item['author'] + '\tcontent: ' + item['content'] + '\thits: ' + item['hits'] + \
+            '\treplies: ' + item['replies'] + '\tatime: ' + item['atime'] + '\tis_post: ' + str(item['is_post']) 
+            
+        logger.debug('Post info: ' + item_str)             
         items.append(item)
 
         # print item['time']
@@ -69,6 +73,9 @@ class TianyaSpider(Spider):
 
     def parse(self, response):  
 
+        global logger
+
+        logger.debug('Begin to parse post head at title list.')
         sel = Selector(response)  
         table_trs = sel.xpath('//table/tbody[2]/tr')
         items = []
@@ -84,8 +91,10 @@ class TianyaSpider(Spider):
             item['post_id'] = item['post_url'].split('-')[2]
             item['atime'] = tr.xpath('td[5]/@title').extract()[0].strip()
             item['is_post'] = True
+            
             items.append(item)
 
         for item in items:
             # print item['post_url']
+            logger.debug('Begin to request post, id :' + item['post_id'] + '\turl: ' + 'http://bbs.tianya.cn%s' % item['post_url'])
             yield Request("http://bbs.tianya.cn%s" % item['post_url'], meta={'item':item}, callback=self.content_parse)
